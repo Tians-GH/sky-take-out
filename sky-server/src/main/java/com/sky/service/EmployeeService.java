@@ -29,4 +29,12 @@ public interface EmployeeService {
      * @return
      */
     PageResult selectBypage(EmployeePageQueryDTO employeePageQueryDTO);
+
+    /**
+     * 启禁用员工
+     *
+     * @param
+     * @return
+     */
+    void enableAndDisableAccount(Integer status,long id);
 }

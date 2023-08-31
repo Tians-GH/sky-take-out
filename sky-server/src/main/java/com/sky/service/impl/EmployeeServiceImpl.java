@@ -114,5 +114,21 @@ public class EmployeeServiceImpl implements EmployeeService {
         return new PageResult(total,records);
     }
 
+    /**
+     * 启禁用员工
+     *
+     * @param
+     * @return
+     */
+    @Override
+    public void enableAndDisableAccount(Integer status, long id) {
+        // 实例化一个员工接收数据
+        Employee employee = Employee.builder()
+                .status(status)
+                .id(id)
+                .build();
+        employeeMapper.updata(employee);
+    }
+
 
 }

@@ -101,5 +101,12 @@ public class EmployeeController {
         PageResult pageResult = employeeService.selectBypage(employeePageQueryDTO);
         return Result.success(pageResult);
     }
+    @PostMapping("/status/{status}")
+    @ApiOperation("启用禁用员工登录")
+    public Result enableAndDisableAccount(@PathVariable Integer status,long id){
+        //调用service层
+        employeeService.enableAndDisableAccount(status,id);
+        return Result.success();
+    }
 
 }
