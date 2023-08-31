@@ -6,10 +6,7 @@ import com.sky.constant.MessageConstant;
 import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
-import com.sky.dto.CategoryDTO;
-import com.sky.dto.EmployeeDTO;
-import com.sky.dto.EmployeeLoginDTO;
-import com.sky.dto.EmployeePageQueryDTO;
+import com.sky.dto.*;
 import com.sky.entity.Category;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
@@ -55,5 +52,14 @@ public class CategoryServiceImpl implements CategoryService {
         category.setUpdateTime(updateDateTime);
         category.setUpdateUser(updateId);
         categoryMapper.save(category);
+    }
+
+    @Override
+    public PageResult selectPageByCategory(CategoryPageQueryDTO categoryPageQueryDTO) {
+        PageHelper.startPage(categoryPageQueryDTO.getPage(),categoryPageQueryDTO.getPageSize());
+        Page<Category> page = categoryMapper.selectPageByCategory(categoryPageQueryDTO);
+        long total = page.getTotal();
+        List<Category> records = page.getResult();
+        return new PageResult(total,records);
     }
 }
