@@ -7,6 +7,7 @@ import com.sky.dto.CategoryPageQueryDTO;
 import com.sky.entity.Category;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface CategoryMapper {
@@ -30,4 +31,12 @@ public interface CategoryMapper {
      * @param categoryDTO
      */
     void updateCategory(CategoryDTO categoryDTO);
+
+    /**
+     * 启用、禁用分类
+     * @param status
+     * @param id
+     */
+    @Update("update category set status = #{status} where id = #{id}")
+    void enableAndDisable(Integer status, long id);
 }

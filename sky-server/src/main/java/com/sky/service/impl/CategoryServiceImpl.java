@@ -71,4 +71,14 @@ public class CategoryServiceImpl implements CategoryService {
     public void updateCategory(CategoryDTO categoryDTO) {
         categoryMapper.updateCategory(categoryDTO);
     }
+
+    /**
+     * 启用禁用分类
+     * @param status
+     * @param id
+     */
+    @Override
+    public void enableAndDisable(Integer status, long id) {
+        categoryMapper.enableAndDisable(status,id);
+    }
 }
