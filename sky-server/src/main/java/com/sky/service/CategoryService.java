@@ -18,4 +18,10 @@ public interface CategoryService {
      * @return
      */
     PageResult selectPageByCategory(CategoryPageQueryDTO categoryPageQueryDTO);
+
+    /**
+     * 修改分类
+     * @param categoryDTO
+     */
+    void updateCategory(CategoryDTO categoryDTO);
 }

@@ -62,4 +62,13 @@ public class CategoryServiceImpl implements CategoryService {
         List<Category> records = page.getResult();
         return new PageResult(total,records);
     }
+
+    /**
+     * 修改分类
+     * @param categoryDTO
+     */
+    @Override
+    public void updateCategory(CategoryDTO categoryDTO) {
+        categoryMapper.updateCategory(categoryDTO);
+    }
 }

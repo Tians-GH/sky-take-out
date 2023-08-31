@@ -2,6 +2,7 @@ package com.sky.mapper;
 
 
 import com.github.pagehelper.Page;
+import com.sky.dto.CategoryDTO;
 import com.sky.dto.CategoryPageQueryDTO;
 import com.sky.entity.Category;
 import org.apache.ibatis.annotations.Insert;
@@ -23,4 +24,10 @@ public interface CategoryMapper {
      * @return
      */
     Page<Category> selectPageByCategory(CategoryPageQueryDTO categoryPageQueryDTO);
+
+    /**
+     * 修改分类
+     * @param categoryDTO
+     */
+    void updateCategory(CategoryDTO categoryDTO);
 }
