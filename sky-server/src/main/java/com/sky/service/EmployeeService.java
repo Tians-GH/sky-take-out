@@ -37,4 +37,17 @@ public interface EmployeeService {
      * @return
      */
     void enableAndDisableAccount(Integer status,long id);
+
+    /**
+     * 根据id查询员工
+     * @param id
+     * @return
+     */
+    Employee selectById(Integer id);
+
+    /**
+     * 修改员工
+     * @param employeeDTO
+     */
+    void updataAccount(EmployeeDTO employeeDTO);
 }

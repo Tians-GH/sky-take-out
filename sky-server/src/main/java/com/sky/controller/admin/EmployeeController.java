@@ -94,6 +94,11 @@ public class EmployeeController {
         return Result.success();
     }
 
+    /**
+     * 分页查询员工
+     * @param employeePageQueryDTO
+     * @return
+     */
     @GetMapping("/page")
     @ApiOperation("分页查询员工")
     public Result<PageResult> selectByPage(EmployeePageQueryDTO employeePageQueryDTO){
@@ -106,6 +111,20 @@ public class EmployeeController {
     public Result enableAndDisableAccount(@PathVariable Integer status,long id){
         //调用service层
         employeeService.enableAndDisableAccount(status,id);
+        return Result.success();
+    }
+
+    @ApiOperation("根据id查询员工信息")
+    @GetMapping("/{id}")
+    public Result selectById(@PathVariable  Integer id){
+        Employee employee = employeeService.selectById(id);
+        return Result.success(employee);
+    }
+
+    @ApiOperation("编辑员工")
+    @PutMapping
+    public Result updataAccount(@RequestBody EmployeeDTO employeeDTO){
+        employeeService.updataAccount(employeeDTO);
         return Result.success();
     }
 

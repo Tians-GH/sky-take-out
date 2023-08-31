@@ -130,5 +130,24 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeMapper.updata(employee);
     }
 
+    @Override
+    public Employee selectById(Integer id) {
+        Employee employee = employeeMapper.selectById(id);
+        employee.setPassword("****");
+        return employee;
+    }
+
+    /**
+     * 修改员工
+     * @param employeeDTO
+     */
+    @Override
+    public void updataAccount(EmployeeDTO employeeDTO) {
+        Employee employee = new Employee();
+        // 复制传过来的数据到原始表，因为操作的本就是原始表才会生效
+        BeanUtils.copyProperties(employeeDTO,employee);
+        employeeMapper.updata(employee);
+    }
+
 
 }
