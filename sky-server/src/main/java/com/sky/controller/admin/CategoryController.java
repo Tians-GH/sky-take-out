@@ -82,4 +82,16 @@ public class CategoryController {
         categoryService.enableAndDisable(status,id);
         return Result.success();
     }
+
+    /**
+     * 根据id删除分类
+     * @param id
+     * @return
+     */
+    @ApiOperation("根据id删除分类")
+    @DeleteMapping
+    public Result deleteById(long id) {
+        categoryService.deleteById(id);
+        return Result.success();
+    }
 }

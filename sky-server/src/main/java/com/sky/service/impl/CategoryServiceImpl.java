@@ -81,4 +81,13 @@ public class CategoryServiceImpl implements CategoryService {
     public void enableAndDisable(Integer status, long id) {
         categoryMapper.enableAndDisable(status,id);
     }
+
+    /**
+     * 根据id删除分类
+     * @param id
+     */
+    @Override
+    public void deleteById(long id) {
+        categoryMapper.deleteById(id);
+    }
 }
