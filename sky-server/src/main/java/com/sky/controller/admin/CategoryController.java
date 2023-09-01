@@ -80,6 +80,6 @@ public class CategoryController {
     @ApiOperation("启用、禁用分类")
     public Result enableAndDisable(@PathVariable Integer status,long id) {
         categoryService.enableAndDisable(status,id);
-        return null;
+        return Result.success();
     }
 }
