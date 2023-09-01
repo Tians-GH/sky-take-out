@@ -29,9 +29,9 @@ public interface CategoryMapper {
 
     /**
      * 修改分类
-     * @param categoryDTO
+     * @param category
      */
-    void updateCategory(CategoryDTO categoryDTO);
+    void updateCategory(Category category);
 
     /**
      * 启用、禁用分类

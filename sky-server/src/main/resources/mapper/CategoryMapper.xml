@@ -10,8 +10,9 @@
                 name = #{name},
             </if>
             <if test="sort != null and sort != ''">
-                sort = #{sort}
+                sort = #{sort},
             </if>
+            update_time = updateTime,update_user = updateUser
         </set>
         where id = #{id}
     </update>
@@ -21,11 +22,12 @@
         from category
         <where>
             <if test="name != null and name != ''">
-                and name = #{name}
+                and name like concat('%',#{name},'%')
             </if>
             <if test="type != null and type != ''">
                 and type = #{type}
             </if>
         </where>
+        order by sort asc , create_time desc
     </select>
 </mapper>

@@ -94,4 +94,6 @@ public class CategoryController {
         categoryService.deleteById(id);
         return Result.success();
     }
+
+    // TODO: 2023/9/1 查询分类类型，返回前端，但是前端代码好像已经实现了，所以目前没必要
 }
