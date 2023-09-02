@@ -6,3 +6,13 @@ sky:
     database: sky_take_out
     username: root
     password: root
+
+    alioss:
+      # oss所在域名
+      endpoint: oss-cn-hangzhou.aliyuncs.com
+      # 连接id
+      access-key-id: LTAI5tPeFLzsPPT8gG3LPW64
+      # 连接秘钥
+      access-key-secret: U6k1brOZ8gaOIXv3nXbulGTUzy6Pd7
+      # 存储通名字
+      bucket-name: sky-take-out

@@ -3,6 +3,7 @@ package com.sky.controller.admin;
 import com.sky.constant.JwtClaimsConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.*;
+import com.sky.entity.Category;
 import com.sky.entity.Employee;
 import com.sky.properties.JwtProperties;
 import com.sky.result.PageResult;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -95,5 +97,15 @@ public class CategoryController {
         return Result.success();
     }
 
-    // TODO: 2023/9/1 查询分类类型，返回前端，但是前端代码好像已经实现了，所以目前没必要
+    /**
+     * 根据类型查询分类
+     * @param type
+     * @return
+     */
+    @ApiOperation("根据类型查询分类")
+    @GetMapping("/list")
+    public Result<List<Category>> selectByType(Integer type) {
+        List<Category> categories = categoryService.selectByType(type);
+        return Result.success(categories);
+    }
 }
