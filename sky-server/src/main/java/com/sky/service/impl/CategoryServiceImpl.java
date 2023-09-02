@@ -40,28 +40,37 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     SetmealMapper setmealMapper;
 
+    /**
+     * 新增分类
+     * @param categoryDTO
+     */
     @Override
     public void save(CategoryDTO categoryDTO) {
         Category category = new Category();
         //复制
         BeanUtils.copyProperties(categoryDTO,category);
-        //创建时间
-        LocalDateTime createDateTime = LocalDateTime.now();
-        //更新时间
-        LocalDateTime updateDateTime = LocalDateTime.now();
-        //创建人
-        Long createId = BaseContext.getCurrentId();
-        //修改人
-        Long updateId = BaseContext.getCurrentId();
-        //自动属性要加上去：创建人，创建时间...
+        // //创建时间
+        // LocalDateTime createDateTime = LocalDateTime.now();
+        // //更新时间
+        // LocalDateTime updateDateTime = LocalDateTime.now();
+        // //创建人
+        // Long createId = BaseContext.getCurrentId();
+        // //修改人
+        // Long updateId = BaseContext.getCurrentId();
+        // //自动属性要加上去：创建人，创建时间...
         category.setStatus(0);
-        category.setCreateUser(createId);
-        category.setCreateTime(createDateTime);
-        category.setUpdateTime(updateDateTime);
-        category.setUpdateUser(updateId);
+        // category.setCreateUser(createId);
+        // category.setCreateTime(createDateTime);
+        // category.setUpdateTime(updateDateTime);
+        // category.setUpdateUser(updateId);
         categoryMapper.save(category);
     }
 
+    /**
+     * 分页查询分类
+     * @param categoryPageQueryDTO
+     * @return
+     */
     @Override
     public PageResult selectPageByCategory(CategoryPageQueryDTO categoryPageQueryDTO) {
         PageHelper.startPage(categoryPageQueryDTO.getPage(),categoryPageQueryDTO.getPageSize());
@@ -79,10 +88,10 @@ public class CategoryServiceImpl implements CategoryService {
     public void updateCategory(CategoryDTO categoryDTO) {
         Category category = new Category();
         BeanUtils.copyProperties(categoryDTO,category);
-        //更新人
-        category.setUpdateUser(BaseContext.getCurrentId());
-        //更新时间
-        category.setUpdateTime(LocalDateTime.now());
+        // //更新人
+        // category.setUpdateUser(BaseContext.getCurrentId());
+        // //更新时间
+        // category.setUpdateTime(LocalDateTime.now());
         categoryMapper.updateCategory(category);
     }
 

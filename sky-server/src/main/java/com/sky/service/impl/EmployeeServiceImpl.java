@@ -75,6 +75,7 @@ public class EmployeeServiceImpl implements EmployeeService {
      */
     @Override
     public void save(EmployeeDTO employeeDTO) {
+        log.info("传来的数据：{}",employeeDTO);
         Long id = BaseContext.getCurrentId();
         log.info("id:{}",id);
         // 在mapper中操作的表要和数据表对应起来，在service层中就要开始转换用实体类。
@@ -88,11 +89,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 1、转化为MD5编码
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
         // 设置当前记录的创建时间和修改时间
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime((LocalDateTime.now()));
-        // 设置当前记录的创建人和修改人的id
-        employee.setCreateUser(id);
-        employee.setUpdateUser(id);
+        // employee.setCreateTime(LocalDateTime.now());
+        // employee.setUpdateTime((LocalDateTime.now()));
+        // // 设置当前记录的创建人和修改人的id
+        // employee.setCreateUser(id);
+        // employee.setUpdateUser(id);
         employeeMapper.save(employee);
     }
 
