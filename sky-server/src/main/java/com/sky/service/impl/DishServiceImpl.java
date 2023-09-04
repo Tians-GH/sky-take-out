@@ -6,6 +6,7 @@ import com.sky.constant.MessageConstant;
 import com.sky.dto.CategoryDTO;
 import com.sky.dto.CategoryPageQueryDTO;
 import com.sky.dto.DishDTO;
+import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Category;
 import com.sky.entity.Dish;
 import com.sky.entity.DishFlavor;
@@ -17,6 +18,7 @@ import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
 import com.sky.service.CategoryService;
 import com.sky.service.DishService;
+import com.sky.vo.DishVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,5 +58,20 @@ public class DishServiceImpl implements DishService {
         // 3、插入数据
         dishFlavorMapper.insertBatch(flavors);
         //
+    }
+
+    /**
+     * 分页查询菜品
+     * @param dishPageQueryDTO
+     * @return
+     */
+    @Override
+    public PageResult selectByPage(DishPageQueryDTO dishPageQueryDTO) {
+        // 插件分页
+        PageHelper.startPage(dishPageQueryDTO.getPage(), dishPageQueryDTO.getPageSize());
+        Page<DishVO> dishPage = dishMapper.selectByPage(dishPageQueryDTO);
+        long total = dishPage.getTotal();
+        List<DishVO> records = dishPage.getResult();
+        return new PageResult(total,records);
     }
 }

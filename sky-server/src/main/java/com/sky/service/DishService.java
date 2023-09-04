@@ -3,6 +3,7 @@ package com.sky.service;
 import com.sky.dto.CategoryDTO;
 import com.sky.dto.CategoryPageQueryDTO;
 import com.sky.dto.DishDTO;
+import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Category;
 import com.sky.result.PageResult;
 
@@ -14,4 +15,11 @@ public interface DishService {
      * @param dishDTO
      */
     void save(DishDTO dishDTO);
+
+    /**
+     * 分页查询菜品
+     * @param dishPageQueryDTO
+     * @return
+     */
+    PageResult selectByPage(DishPageQueryDTO dishPageQueryDTO);
 }
