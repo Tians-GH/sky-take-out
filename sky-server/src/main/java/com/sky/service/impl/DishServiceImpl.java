@@ -158,4 +158,15 @@ public class DishServiceImpl implements DishService {
     public void enableAndDisable(Integer status, Long id) {
         dishMapper.enableAndDisable(status,id);
     }
+
+    /**
+     * 根据分类id查询菜品
+     * @param id
+     * @return
+     */
+    @Override
+    public List<Dish> selectListByCategoryId(Long id) {
+        List<Dish> dishList = dishMapper.selectListByCategoryId(id);
+        return dishList;
+    }
 }

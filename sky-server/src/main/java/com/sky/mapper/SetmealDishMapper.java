@@ -22,4 +22,10 @@ public interface SetmealDishMapper {
      */
     @Select("select * from setmeal_dish where dish_id = #{id}")
     SetmealDish selectByDishId(Long id);
+
+    /**
+     * 新增菜品
+     * @param setmealDish
+     */
+    void insert(SetmealDish setmealDish);
 }
