@@ -4,9 +4,20 @@
 <mapper namespace="com.sky.mapper.DishFlavorMapper">
     <!-- 插入n条数据 -->
     <insert id="insertBatch">
-        insert into dish_flavor (dish_id, name, value) VALUES
+        insert into dish_flavor(dish_id,name,value)
+        VALUES
         <foreach collection="flavors" item="fl" separator=",">
             (#{fl.dishId},#{fl.name},#{fl.value})
         </foreach>
     </insert>
+    <!-- 删除/批量删除菜品 -->
+    <delete id="deleteBatch">
+        delete from dish_flavor
+        <where>
+            dish_id in
+               <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+                   #{id}
+               </foreach>
+        </where>
+    </delete>
 </mapper>

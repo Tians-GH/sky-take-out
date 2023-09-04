@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -53,5 +54,18 @@ public class DishController {
         log.info("查询条件：{}",dishPageQueryDTO);
         PageResult  page = dishService.selectByPage(dishPageQueryDTO);
         return Result.success(page);
+    }
+
+    /**
+     * 分页查询菜品
+     * @param ids
+     * @return
+     */
+    @ApiOperation("删除/批量删除菜品")
+    @DeleteMapping
+    public Result delete(@RequestParam List<Long> ids) {
+        log.info("查询条件：{}",ids);
+        dishService.delete(ids);
+        return Result.success();
     }
 }
