@@ -148,4 +148,14 @@ public class DishServiceImpl implements DishService {
             dishFlavorMapper.insertBatch(flavors1);
         }
     }
+
+    /**
+     * 启用，禁用菜品
+     * @param status
+     * @param id
+     */
+    @Override
+    public void enableAndDisable(Integer status, Long id) {
+        dishMapper.enableAndDisable(status,id);
+    }
 }

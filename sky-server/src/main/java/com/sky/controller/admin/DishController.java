@@ -95,4 +95,16 @@ public class DishController {
         dishService.updateDish(dishDTO);
         return Result.success();
     }
+
+    /**
+     * 启用，禁用菜品
+     * @param id
+     * @return
+     */
+    @ApiOperation("启用，禁用菜品")
+    @PostMapping("/status/{status}")
+    public Result enableAndDisable(@PathVariable Integer status,Long id) {
+        dishService.enableAndDisable(status,id);
+        return Result.success();
+    }
 }
