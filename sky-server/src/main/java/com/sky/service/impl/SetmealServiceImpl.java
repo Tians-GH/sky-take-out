@@ -42,8 +42,13 @@ public class SetmealServiceImpl implements SetmealService {
     @Autowired
     SetmealDishMapper setmealDishMapper;
 
+    /**
+     * 新增套餐
+     * @param setmealDTO
+     */
     @Override
     public void save(SetmealDTO setmealDTO) {
+        log.info("setmealDTO:{}",setmealDTO);
         //新增套餐
         Setmeal setmeal = new Setmeal();
         BeanUtils.copyProperties(setmealDTO,setmeal);

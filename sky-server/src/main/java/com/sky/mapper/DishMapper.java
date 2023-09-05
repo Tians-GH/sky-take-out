@@ -62,9 +62,10 @@ public interface DishMapper {
 
     /**
      * 更新dish
-     * @param dishDTO
+     * @param dish
      */
-    void update(DishDTO dishDTO);
+    @AutoFill(OperationType.UPDATE)
+    void update(Dish dish);
 
     /**
      * 启用，禁用菜品

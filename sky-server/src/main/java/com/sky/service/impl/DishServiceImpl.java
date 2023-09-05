@@ -126,8 +126,11 @@ public class DishServiceImpl implements DishService {
      */
     @Override
     public void updateDish(DishDTO dishDTO) {
+        // 因为需要更新更新人和更新时间字段，所有需要dish源表
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO,dish);
         // 更新dish表
-        dishMapper.update(dishDTO);
+        dishMapper.update(dish);
         // 更新flavor表
         // 1、如果有的话，删除flavor数据
         Long id = dishDTO.getId();
