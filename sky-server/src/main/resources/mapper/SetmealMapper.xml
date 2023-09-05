@@ -3,12 +3,26 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.SetmealMapper">
     <!-- 新增套餐 -->
-    <insert id="insert">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         insert into setmeal(category_id,name,price,status,description,
                             image,create_time,create_user,update_time,update_user)
         values (#{categoryId},#{name},#{price},#{status},#{description},#{image},
                 #{createTime},#{createUser},#{updateTime},#{updateUser})
     </insert>
+    <!-- 修改套餐 -->
+    <update id="update">
+        update setmeal
+        <set>
+            name = #{name},
+            category_id = #{categoryId},
+            price = #{price},
+            image = #{image},
+            description = #{description},
+            update_user = #{updateUser},
+            update_time = #{updateTime}
+        </set>
+        where id = #{id}
+    </update>
     <!-- 分页查询套餐 -->
     <select id="selectByPage" resultType="com.sky.vo.SetmealVO">
         select s.*,c.name as categoryName
@@ -18,11 +32,17 @@
                 and category_id = #{categoryId}
             </if>
             <if test="name != null">
-                and name = #{name}
+                and s.name like concat ('%',#{name},'%')
             </if>
             <if test="status != null">
-                and status = #{status}
+                and s.status = #{status}
             </if>
         </where>
+    </select>
+    <!-- 通过id查询 -->
+    <select id="selectById" resultType="com.sky.vo.SetmealVO">
+        select s.*,c.name as categoryName
+        from setmeal s left outer join category c on s.category_id = c.id
+        where s.id = #{id}
     </select>
 </mapper>

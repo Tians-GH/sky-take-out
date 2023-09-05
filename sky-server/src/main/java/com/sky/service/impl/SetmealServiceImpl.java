@@ -13,6 +13,7 @@ import com.sky.entity.DishFlavor;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
 import com.sky.exception.DeletionNotAllowedException;
+import com.sky.exception.SetmealEnableFailedException;
 import com.sky.mapper.*;
 import com.sky.result.PageResult;
 import com.sky.service.DishService;
@@ -47,10 +48,11 @@ public class SetmealServiceImpl implements SetmealService {
         Setmeal setmeal = new Setmeal();
         BeanUtils.copyProperties(setmealDTO,setmeal);
         setmealMapper.insert(setmeal);
+        log.info("setmeal:{}",setmeal);
         //更新中间表
         List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
         for (SetmealDish setmealDish : setmealDishes) {
-            setmealDish.setSetmealId(setmealDTO.getId());
+            setmealDish.setSetmealId(setmeal.getId());
             setmealDishMapper.insert(setmealDish);
         }
     }
@@ -67,5 +69,81 @@ public class SetmealServiceImpl implements SetmealService {
 
         Page<SetmealVO> page = setmealMapper.selectByPage(setmealDTO);
         return new PageResult(page.getTotal(),page.getResult());
+    }
+
+    /**
+     * 批量删除套餐
+     * @param ids
+     */
+    @Override
+    public void delete(List<Long> ids) {
+        // 如果套餐的状态是起售，则不能删除
+        for (Long id : ids) {
+            if(setmealMapper.selectById(id).getStatus() == 0) {
+                // 删除套餐表
+                setmealMapper.deleteById(id);
+                // 删除套餐菜品表
+                setmealDishMapper.deleteById(id);
+            } else {
+                throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
+            }
+        }
+        //
+    }
+
+    /**
+     * 根据id查询套餐
+     * @param id
+     * @return
+     */
+    @Override
+    public SetmealVO selectById(Long id) {
+
+        // 根据id查询菜品数据
+        List<SetmealDish> setmealDishes = setmealDishMapper.selectBySetmealId(id);
+        // 查询套餐数据
+        SetmealVO setmealVO = setmealMapper.selectById(id);
+        // 合并数据
+        setmealVO.setSetmealDishes(setmealDishes);
+        //
+        return setmealVO;
+    }
+
+    /**
+     * 修改套餐
+     * @param setmealDTO
+     */
+    @Override
+    public void update(SetmealDTO setmealDTO) {
+        // 删除菜品数据
+        setmealDishMapper.deleteById(setmealDTO.getId());
+        List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
+        // 更新菜品表数据
+        for (SetmealDish setmealDish : setmealDishes) {
+            setmealDish.setSetmealId(setmealDTO.getId());
+            setmealDishMapper.insert(setmealDish);
+        }
+        Setmeal setmeal = new Setmeal();
+        BeanUtils.copyProperties(setmealDTO,setmeal);
+        // 更新套餐数据
+        setmealMapper.update(setmeal);
+        //
+    }
+
+    /**
+     * 套餐起售、停售
+     * @param status
+     * @param id
+     */
+    @Override
+    public void enableAndDisable(Integer status, Long id) {
+        //如果所有菜品都是起售才能套餐起售
+        List<SetmealDish> setmealDishes = setmealDishMapper.selectBySetmealId(id);
+        for (SetmealDish setmealDish : setmealDishes) {
+            if(dishMapper.selectById(setmealDish.getDishId()).getStatus() == 0){
+                throw new SetmealEnableFailedException(MessageConstant.SETMEAL_ENABLE_FAILED);
+            }
+        }
+        setmealMapper.enableAndDisable(status,id);
     }
 }

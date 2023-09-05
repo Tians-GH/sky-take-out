@@ -2,12 +2,15 @@ package com.sky.mapper;
 
 import com.github.pagehelper.Page;
 import com.sky.annotation.AutoFill;
+import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.entity.Setmeal;
 import com.sky.enumeration.OperationType;
 import com.sky.vo.SetmealVO;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 /**
  * @Author Tians
@@ -41,4 +44,32 @@ public interface SetmealMapper {
      * @return
      */
     Page<SetmealVO> selectByPage(SetmealPageQueryDTO setmealDTO);
+
+    /**
+     * 通过id查询
+     * @param id
+     */
+    SetmealVO selectById(Long id);
+
+    /**
+     * 通过id删除
+     * @param id
+     */
+    @Delete("delete from setmeal where id = #{id}")
+    void deleteById(Long id);
+
+    /**
+     * 修改套餐
+     * @param setmeal
+     */
+    @AutoFill(OperationType.UPDATE)
+    void update(Setmeal setmeal);
+
+    /**
+     * 套餐起售、停售
+     * @param status
+     * @param id
+     */
+    @Update("update setmeal set status = #{status} where id = #{id}")
+    void enableAndDisable(Integer status, Long id);
 }
