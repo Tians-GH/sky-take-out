@@ -18,7 +18,11 @@ sky:
       bucket-name: sky-take-out
 
   redis:
+    # 主机地址
     host: localhost
+#    端口
     port: 6379
+#    密码
     password: 123456
+#    数据库
     database: 10
