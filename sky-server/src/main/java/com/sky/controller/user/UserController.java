@@ -9,6 +9,7 @@ import com.sky.service.UserService;
 import com.sky.utils.JwtUtil;
 import com.sky.vo.UserLoginVO;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,13 +38,16 @@ public class UserController {
      * @param userLoginDTO
      * @return
      */
+    @ApiOperation("用户登录")
     @PostMapping("/login")
     public Result<UserLoginVO> wxLogin(@RequestBody UserLoginDTO userLoginDTO) {
         // 登录
         User user = userService.wxLogin(userLoginDTO);
         // Jwt：登录成功后生成jwt令牌
         HashMap<String, Object> claims = new HashMap<>();
+        // 填充数据
         claims.put(JwtClaimsConstant.USER_ID, user.getId());
+        // 利用自定义工具生成token
         String token = JwtUtil.createJWT(jwtProperties.getUserSecretKey(), jwtProperties.getUserTtl(), claims);
 
         UserLoginVO userLoginVO = UserLoginVO.builder()

@@ -1,14 +1,9 @@
 package com.sky.controller.admin;
 
-import com.sky.dto.CategoryDTO;
-import com.sky.dto.CategoryPageQueryDTO;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
-import com.sky.entity.Category;
-import com.sky.properties.JwtProperties;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
-import com.sky.service.CategoryService;
 import com.sky.service.SetmealService;
 import com.sky.vo.SetmealVO;
 import io.swagger.annotations.Api;
@@ -22,7 +17,7 @@ import java.util.List;
 /**
  * 套餐管理
  */
-@RestController
+@RestController("adminSetmealController")
 @RequestMapping("/admin/setmeal")
 @Slf4j
 @Api(tags = "套餐接口文档")
@@ -33,6 +28,7 @@ public class SetmealController {
 
     /**
      * 新增套餐
+     *
      * @param setmealDTO
      * @return
      */
@@ -45,6 +41,7 @@ public class SetmealController {
 
     /**
      * 分页查询套餐
+     *
      * @param setmealDTO
      * @return
      */
@@ -57,6 +54,7 @@ public class SetmealController {
 
     /**
      * 批量删除套餐
+     *
      * @param ids
      * @return
      */
@@ -69,6 +67,7 @@ public class SetmealController {
 
     /**
      * 根据id查询套餐数据回显
+     *
      * @param id
      * @return
      */
@@ -81,6 +80,7 @@ public class SetmealController {
 
     /**
      * 修改套餐
+     *
      * @param setmealDTO
      * @return
      */
@@ -93,13 +93,14 @@ public class SetmealController {
 
     /**
      * 套餐起售、停售
+     *
      * @param status
      * @return
      */
     @ApiOperation("套餐起售、停售")
     @PostMapping("/status/{status}")
     public Result enableAndDisable(@PathVariable Integer status, Long id) {
-        setmealService.enableAndDisable(status,id);
+        setmealService.enableAndDisable(status, id);
         return Result.success();
     }
 }
