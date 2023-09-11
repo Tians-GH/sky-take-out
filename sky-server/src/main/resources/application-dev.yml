@@ -20,9 +20,13 @@ sky:
   redis:
     # 主机地址
     host: localhost
-#    端口
+    #    端口
     port: 6379
-#    密码
+    #    密码
     password: 123456
-#    数据库
+    #    数据库
     database: 10
+  #配置微信登录所需配置项：
+  wechat:
+    appid: wx2ae6211a4ed178b9
+    secret: 4a588eaab63601e5e63ca70e78013a21
