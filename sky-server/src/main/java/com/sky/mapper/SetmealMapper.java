@@ -89,4 +89,12 @@ public interface SetmealMapper {
      */
     @Select("select * from setmeal where category_id = #{categoryId}")
     List<Setmeal> selectListByCategoryId(Long categoryId);
+
+    /**
+     * 根据分类id查询已售套餐
+     *
+     * @param categoryId
+     * @return
+     */
+    List<Setmeal> selectListByCategoryIdWithStatus(Long categoryId);
 }

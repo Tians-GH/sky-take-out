@@ -2,7 +2,6 @@ package com.sky.mapper;
 
 import com.github.pagehelper.Page;
 import com.sky.annotation.AutoFill;
-import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.enumeration.OperationType;
@@ -26,6 +25,7 @@ import java.util.List;
 public interface DishMapper {
     /**
      * 根据分类id查询菜品数量
+     *
      * @param id
      * @return
      */
@@ -34,13 +34,15 @@ public interface DishMapper {
 
     /**
      * 新增菜品
+     *
      * @param dish
      */
     @AutoFill(OperationType.INSERT)
     void insert(Dish dish);
 
     /**
-     *分页查询菜品
+     * 分页查询菜品
+     *
      * @param dishPageQueryDTO
      * @return
      */
@@ -48,6 +50,7 @@ public interface DishMapper {
 
     /**
      * 根据id查询
+     *
      * @param id
      * @return
      */
@@ -56,12 +59,14 @@ public interface DishMapper {
 
     /**
      * 删除/批量删除菜品
+     *
      * @param ids
      */
     void deleteBatch(List<Long> ids);
 
     /**
      * 更新dish
+     *
      * @param dish
      */
     @AutoFill(OperationType.UPDATE)
@@ -69,6 +74,7 @@ public interface DishMapper {
 
     /**
      * 启用，禁用菜品
+     *
      * @param status
      * @param id
      */
@@ -77,9 +83,18 @@ public interface DishMapper {
 
     /**
      * 根据分类id查询菜品
+     *
      * @param id
      * @return
      */
     @Select("select * from dish where category_id = #{id}")
     List<Dish> selectListByCategoryId(Long id);
+
+    /**
+     * 根据分类id查询已售的菜品
+     *
+     * @param categoryId
+     * @return
+     */
+    List<Dish> selectListWithFlavorByCategoryId(Long categoryId);
 }

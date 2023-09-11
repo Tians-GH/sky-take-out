@@ -161,7 +161,7 @@ public class SetmealServiceImpl implements SetmealService {
      */
     @Override
     public List<Setmeal> selectListByCategoryId(Long categoryId) {
-        List<Setmeal> setmeals = setmealMapper.selectListByCategoryId(categoryId);
+        List<Setmeal> setmeals = setmealMapper.selectListByCategoryIdWithStatus(categoryId);
         return setmeals;
     }
 

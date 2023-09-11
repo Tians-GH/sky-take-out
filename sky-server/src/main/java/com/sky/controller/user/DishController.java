@@ -1,8 +1,8 @@
 package com.sky.controller.user;
 
-import com.sky.entity.Dish;
 import com.sky.result.Result;
 import com.sky.service.DishService;
+import com.sky.vo.DishVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -35,8 +35,8 @@ public class DishController {
      */
     @ApiOperation("根据菜品分类id查询菜品")
     @GetMapping("/list")
-    public Result<List<Dish>> selectListByCategoryId(@RequestParam Long categoryId) {
-        List<Dish> dishList = dishService.selectListByCategoryId(categoryId);
+    public Result<List<DishVO>> selectListWithFlavorByCategoryId(@RequestParam Long categoryId) {
+        List<DishVO> dishList = dishService.selectListWithFlavorByCategoryId(categoryId);
         return Result.success(dishList);
     }
 }
