@@ -36,7 +36,7 @@ public class AddressBookController {
     }
 
     /**
-     * 新增地址
+     * 查找地址
      *
      * @param
      * @return
@@ -61,5 +61,61 @@ public class AddressBookController {
 
         AddressBook addressBook = addressBookService.selectDefaultAddress();
         return Result.success(addressBook);
+    }
+
+    /**
+     * 修改默认地址
+     *
+     * @param
+     * @return
+     */
+    @ApiOperation("修改默认地址")
+    @PutMapping
+    public Result updateAddr(@RequestBody AddressBook addressBook) {
+
+        addressBookService.updateAddr(addressBook);
+        return Result.success();
+    }
+
+    /**
+     * 根据id删除地址
+     *
+     * @param
+     * @return
+     */
+    @ApiOperation("根据id删除地址")
+    @DeleteMapping
+    public Result deleteById(@RequestParam Long id) {
+        log.info("addr:{}", id);
+        addressBookService.deleteById(id);
+        return Result.success();
+    }
+
+    /**
+     * 根据id查询地址
+     *
+     * @param
+     * @return
+     */
+    @ApiOperation("根据id查询地址")
+    @GetMapping("/{id}")
+    public Result<AddressBook> selectById(@PathVariable Long id) {
+        log.info("id:{}", id);
+        AddressBook addressBook = addressBookService.selectById(id);
+        return Result.success(addressBook);
+    }
+
+    /**
+     * 修改默认地址
+     *
+     * @param
+     * @return
+     */
+    @ApiOperation("修改默认地址")
+    @PutMapping("/default")
+    public Result setDefaultAdd(@RequestBody AddressBook addressBook) {
+
+        addressBookService.setDefaultAdd(addressBook);
+        return Result.success();
     }
 }
