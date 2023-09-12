@@ -48,4 +48,18 @@ public class AddressBookController {
         List<AddressBook> list = addressBookService.selectList();
         return Result.success(list);
     }
+
+    /**
+     * 查找默认地址
+     *
+     * @param
+     * @return
+     */
+    @ApiOperation("查找默认地址")
+    @GetMapping("/default")
+    public Result<AddressBook> selectDefaultAddress() {
+
+        AddressBook addressBook = addressBookService.selectDefaultAddress();
+        return Result.success(addressBook);
+    }
 }

@@ -25,4 +25,13 @@ public interface AddressBookMapper {
      */
     @Select("select * from address_book where user_id = #{id}")
     List<AddressBook> selectList(Long id);
+
+    /**
+     * 查找默认地址
+     *
+     * @param id
+     * @return
+     */
+    @Select("select * from address_book where user_id = #{id} and is_default = 1")
+    AddressBook selectDefaultAddress(Long id);
 }

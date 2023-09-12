@@ -18,4 +18,11 @@ public interface AddressBookService {
      * @return
      */
     List<AddressBook> selectList();
+
+    /**
+     * 查找默认地址
+     *
+     * @return
+     */
+    AddressBook selectDefaultAddress();
 }

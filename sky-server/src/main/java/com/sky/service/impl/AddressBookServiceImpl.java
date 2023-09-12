@@ -43,4 +43,18 @@ public class AddressBookServiceImpl implements AddressBookService {
         List<AddressBook> list = addressBookMapper.selectList(id);
         return list;
     }
+
+    /**
+     * 查找默认地址
+     *
+     * @return
+     */
+    @Override
+    public AddressBook selectDefaultAddress() {
+        // 为谁查找地址
+        Long id = BaseContext.getCurrentId();
+        // 查找默认地址
+        AddressBook addressBook = addressBookMapper.selectDefaultAddress(id);
+        return addressBook;
+    }
 }
