@@ -11,9 +11,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Author Tians
@@ -27,6 +29,18 @@ import java.util.List;
 public class DishController {
     @Autowired
     DishService dishService;
+    @Autowired
+    RedisTemplate redisTemplate;
+
+    /**
+     * 清除缓存
+     *
+     * @param pattern
+     */
+    private void cleanCache(String pattern) {
+        Set keys = redisTemplate.keys(pattern);
+        redisTemplate.delete(keys);
+    }
 
     /**
      * 新增菜品
@@ -38,6 +52,9 @@ public class DishController {
     @PostMapping
     public Result save(@RequestBody DishDTO dishDTO) {
         dishService.save(dishDTO);
+        // 清除缓存
+        String key = "dish_" + dishDTO.getCategoryId();
+        cleanCache(key);
         return Result.success();
     }
 
@@ -56,7 +73,7 @@ public class DishController {
     }
 
     /**
-     * 分页查询菜品
+     * 删除/批量删除菜品
      *
      * @param ids
      * @return
@@ -66,6 +83,9 @@ public class DishController {
     public Result delete(@RequestParam List<Long> ids) {
         log.info("查询条件：{}", ids);
         dishService.delete(ids);
+        // 清除缓存，因为批量删除菜品，可能不止一个分类下的菜品，所以全部删除菜品缓存，错杀一万
+        String key = "dish_*";
+        cleanCache(key);
         return Result.success();
     }
 
@@ -84,7 +104,7 @@ public class DishController {
     }
 
     /**
-     * 根据id查询菜品回显
+     * 修改菜品
      *
      * @param dishDTO
      * @return
@@ -94,6 +114,9 @@ public class DishController {
     public Result updateDish(@RequestBody DishDTO dishDTO) {
         log.info("查询条件：{}", dishDTO);
         dishService.updateDish(dishDTO);
+        // 清除缓存，因为更新菜品，可能不止一个分类下的菜品，所以全部删除菜品缓存，错杀一万
+        String key = "dish_*";
+        cleanCache(key);
         return Result.success();
     }
 
@@ -107,6 +130,9 @@ public class DishController {
     @PostMapping("/status/{status}")
     public Result enableAndDisable(@PathVariable Integer status, Long id) {
         dishService.enableAndDisable(status, id);
+        // 清除缓存，因为禁用菜品，可能不止一个分类下的菜品，所以全部删除菜品缓存，错杀一万
+        String key = "dish_*";
+        cleanCache(key);
         return Result.success();
     }
 
