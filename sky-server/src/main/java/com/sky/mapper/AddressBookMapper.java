@@ -3,6 +3,9 @@ package com.sky.mapper;
 
 import com.sky.entity.AddressBook;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 @Mapper
 public interface AddressBookMapper {
@@ -13,4 +16,13 @@ public interface AddressBookMapper {
      */
 
     void insert(AddressBook addressBook);
+
+    /**
+     * 查找地址
+     *
+     * @param id
+     * @return
+     */
+    @Select("select * from address_book where user_id = #{id}")
+    List<AddressBook> selectList(Long id);
 }
