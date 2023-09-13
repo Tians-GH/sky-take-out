@@ -30,3 +30,19 @@ sky:
   wechat:
     appid: wx2ae6211a4ed178b9
     secret: 4a588eaab63601e5e63ca70e78013a21
+    #    支付配置
+    #    商户号
+    mchid: 1561414331
+    #    商户序列号
+    mchSerialNo: 4B3B3DC35414AD50B1B755BAF8DE9CC7CF407606
+    privateKeyFilePath:
+    # 私钥文件路径 privateKeyFilePath: D:\apiclient_key.pem
+    #    API V3密钥，用于调用微信支付API。
+    apiV3Key: CZBK51236435wxpay435434323FFDuv3
+    #    微信支付证书文件路径
+    #    weChatPayCertFilePath: D:\wechatpay_166D96F876F45C7D07CE98952A96EC980368ACFC.pem
+    weChatPayCertFilePath:
+    #      支付结果通知URL
+    notifyUrl: https://www.weixin.qq.com/wxpay/pay.php
+    #    退款结果通知URL
+    refundNotifyUrl: https://www.weixin.qq.com/wxpay/pay.php
