@@ -11,7 +11,7 @@
                 #{payStatus}, #{amount}, #{remark}, #{phone}, #{address}, #{consignee}, #{estimatedDeliveryTime},
                 #{deliveryStatus}, #{packAmount}, #{tablewareNumber}, #{tablewareStatus})
     </insert>
-    <!--    更新-->
+    <!--更新-->
     <update id="update" parameterType="com.sky.entity.Orders">
         update orders
         <set>
@@ -42,4 +42,47 @@
         </set>
         where id = #{id}
     </update>
+    <!--    查询历史订单-->
+    <select id="queryOrder" resultType="com.sky.entity.Orders">
+        select * from orders
+        <where>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="number != null">
+                and number = #{number}
+            </if>
+            <if test="phone != null">
+                and phone = #{phone}
+            </if>
+            <if test="userId != null">
+                and user_id = #{tim}
+            </if>
+        </where>
+    </select>
+    <!--    订单搜索-->
+    <select id="queryconditionSearch" resultType="com.sky.entity.Orders">
+        select * from orders
+        <where>
+
+            <if test="beginTime != null">
+                and order_time &gt; #{beginTime}
+            </if>
+            <if test="endTime != null">
+                and order_time &lt; #{endTime}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="number != null">
+                and number = #{number}
+            </if>
+            <if test="phone != null">
+                and phone = #{phone}
+            </if>
+        </where>
+    </select>
 </mapper>

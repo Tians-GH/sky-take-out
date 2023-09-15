@@ -1,27 +1,32 @@
 package com.sky.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
-import com.sky.dto.OrdersPaymentDTO;
-import com.sky.dto.OrdersSubmitDTO;
+import com.sky.dto.*;
 import com.sky.entity.*;
 import com.sky.exception.AddressBookBusinessException;
 import com.sky.exception.OrderBusinessException;
 import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.*;
 import com.sky.service.OrderService;
-import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderPaymentVO;
+import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
+import com.sky.vo.OrderVOO;
+import com.sky.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -36,6 +41,12 @@ public class OrderServiceImpl implements OrderService {
     ShoppingCartMapper shoppingCartMapper;
     @Autowired
     UserMapper userMapper;
+    @Autowired
+    WebSocketServer webSocketServer;
+    @Autowired
+    DishMapper dishMapper;
+    @Autowired
+    SetmealDishMapper setmealDishMapper;
 
     /**
      * 下单
@@ -100,17 +111,45 @@ public class OrderServiceImpl implements OrderService {
      * @return
      */
     public OrderPaymentVO payment(OrdersPaymentDTO ordersPaymentDTO) throws Exception {
+        // // // 当前登录用户id
+        // // Long userId = BaseContext.getCurrentId();
+        // // User user = userMapper.getById(userId);
+        // //
+        // // // 调用微信支付接口，生成预支付交易单
+        // // JSONObject jsonObject = WeChatPayUtil.pay(
+        // //         ordersPaymentDTO.getOrderNumber(), // 商户订单号
+        // //         new BigDecimal(0.01), // 支付金额，单位 元
+        // //         "苍穹外卖订单", // 商品描述
+        // //         user.getOpenid() // 微信用户的openid
+        // // );
+        // //
+        // // if (jsonObject.getString("code") != null && jsonObject.getString("code").equals("ORDERPAID")) {
+        // //     throw new OrderBusinessException("该订单已支付");
+        // // }
+        //
+        // // OrderPaymentVO vo = jsonObject.toJavaObject(OrderPaymentVO.class);
+        // // vo.setPackageStr(jsonObject.getString("package"));
+        // OrderPaymentVO orderPaymentVO = new OrderPaymentVO();
+        // orderPaymentVO.setNonceStr("ABC123");
+        // orderPaymentVO.setPaySign("XYZ789");
+        // orderPaymentVO.setTimeStamp("2023-07-04 12:34:56");
+        // orderPaymentVO.setSignType("MD5");
+        // orderPaymentVO.setPackageStr("prepay_id=123456789");
+        //
+        // return orderPaymentVO;
         // 当前登录用户id
         Long userId = BaseContext.getCurrentId();
         User user = userMapper.getById(userId);
 
-        // 调用微信支付接口，生成预支付交易单
-        JSONObject jsonObject = WeChatPayUtil.pay(
-                ordersPaymentDTO.getOrderNumber(), // 商户订单号
-                new BigDecimal(0.01), // 支付金额，单位 元
-                "苍穹外卖订单", // 商品描述
-                user.getOpenid() // 微信用户的openid
-        );
+        // // 调用微信支付接口，生成预支付交易单
+        // JSONObject jsonObject = WeChatPayUtil.pay(
+        //         ordersPaymentDTO.getOrderNumber(), // 商户订单号
+        //         new BigDecimal(0.01), // 支付金额，单位 元
+        //         "苍穹外卖订单", // 商品描述
+        //         user.getOpenid() // 微信用户的openid
+        // );
+
+        JSONObject jsonObject = new JSONObject();
 
         if (jsonObject.getString("code") != null && jsonObject.getString("code").equals("ORDERPAID")) {
             throw new OrderBusinessException("该订单已支付");
@@ -119,7 +158,10 @@ public class OrderServiceImpl implements OrderService {
         OrderPaymentVO vo = jsonObject.toJavaObject(OrderPaymentVO.class);
         vo.setPackageStr(jsonObject.getString("package"));
 
+        paySuccess(ordersPaymentDTO.getOrderNumber());
+
         return vo;
+
     }
 
     /**
@@ -139,7 +181,216 @@ public class OrderServiceImpl implements OrderService {
                 .payStatus(Orders.PAID)
                 .checkoutTime(LocalDateTime.now())
                 .build();
+        orderMapper.update(orders);
 
+        Map map = new HashMap<>();
+        map.put("type", 1); // 1:来单提醒，2：客户催单提醒。
+        map.put("orderId", ordersDB.getId());
+        map.put("content", "订单号" + outTradeNo);
+        String jsonString = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(jsonString);
+        //
+
+
+    }
+
+    /**
+     * 查询历史订单
+     *
+     * @param ordersPageQueryDTO
+     * @return
+     */
+    @Override
+    public List<OrderVOO> queryOrder(OrdersPageQueryDTO ordersPageQueryDTO) {
+        OrderVOO orderVOO = new OrderVOO();
+        List<OrderVOO> vooList = new ArrayList<>();
+
+        // 先设置分页条件
+        PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
+        Orders orders = Orders.builder()
+                .userId(BaseContext.getCurrentId())
+                .build();
+
+        // 查询出订单的记录
+        List<Orders> ordersList = orderMapper.queryOrder(orders);
+
+        // 将ordersList的值复制到vooList
+        for (Orders orders1 : ordersList) {
+
+            BeanUtils.copyProperties(orders1, orderVOO);
+            vooList.add(orderVOO);
+            // 因为list里储存的是orderVOO的地址，使用每次复制了都要用一个新的地址，不然就是在同一个地址上不停赋值，
+            orderVOO = new OrderVOO();
+        }
+
+        // vooList.addAll(ordersList.stream()
+        //         .map(order -> {
+        //             OrderVOO orderVO = new OrderVOO();
+        //             BeanUtils.copyProperties(order, orderVO);
+        //             return orderVO;
+        //         })
+        //         .collect(Collectors.toList()));
+
+
+        // 通过订单id查出对呀订单的商品
+        for (OrderVOO voo : vooList) {
+            List<OrderDetail> orderDetails = orderDetailMapper.selectById(voo.getId());
+            voo.setOrderDetailList(orderDetails);
+            log.info("voo:{}", voo);
+        }
+
+        return vooList;
+    }
+
+    /**
+     * 订单搜索
+     *
+     * @param ordersPageQueryDTO
+     * @return
+     */
+    @Override
+    public List<OrderVOO> conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
+        OrderVOO orderVOO = new OrderVOO();
+        List<OrderVOO> vooList = new ArrayList<>();
+        // 先设置分页条件
+        PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
+
+        // Orders orders = new Orders();
+        // BeanUtils.copyProperties(ordersPageQueryDTO, orders);
+        // orders.setUserId(BaseContext.getCurrentId());
+
+        // 查询出订单的记录
+        List<Orders> ordersList = orderMapper.queryconditionSearch(ordersPageQueryDTO);
+
+        // 将ordersList的值复制到vooList
+        for (Orders orders1 : ordersList) {
+            BeanUtils.copyProperties(orders1, orderVOO);
+            vooList.add(orderVOO);
+            // 因为list里储存的是orderVOO的地址，使用每次复制了都要用一个新的地址，不然就是在同一个地址上不停赋值，
+            orderVOO = new OrderVOO();
+        }
+
+        return vooList;
+    }
+
+    /**
+     * 各个状态的订单数量统计
+     *
+     * @return
+     */
+    @Override
+    public OrderStatisticsVO statisticStatus() {
+
+        Integer pendingOrder = orderMapper.countStatusIsPendingOrder(Orders.TO_BE_CONFIRMED);
+        Integer isTakeOrder = orderMapper.countStatusIsTakeOrder(Orders.CONFIRMED);
+        Integer dilivering = orderMapper.countStatusIsDilivering(Orders.DELIVERY_IN_PROGRESS);
+        return new OrderStatisticsVO(pendingOrder, isTakeOrder, dilivering);
+    }
+
+    /**
+     * 查询订单详情
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public OrderVOO selectByOrderId(Long id) {
+        Orders orders = orderMapper.selectByOrderId(id);
+        List<OrderDetail> orderDetailList = orderDetailMapper.selectById(id);
+        OrderVOO orderVOO = new OrderVOO();
+        BeanUtils.copyProperties(orders, orderVOO);
+        orderVOO.setOrderDetailList(orderDetailList);
+        // 菜品名称们
+        String orderDishes = "";
+        for (OrderDetail orderDetail : orderDetailList) {
+            // 判断是菜品还是套餐
+            Long dishId = orderDetail.getDishId();
+            Long setmealId = orderDetail.getSetmealId();
+            if (dishId != null) {
+                Dish dish = dishMapper.selectById(dishId);
+                orderDishes = orderDishes + dish.getName() + "*" + orderDetail.getNumber() + ";";
+            } else {
+                List<SetmealDish> setmealDishes = setmealDishMapper.selectBySetmealId(setmealId);
+                for (SetmealDish setmealDish : setmealDishes) {
+                    orderDishes += setmealDish.getName() + "*" + orderDetail.getNumber() + ";";
+                }
+            }
+        }
+        orderVOO.setOrderDishes(orderDishes);
+        return orderVOO;
+    }
+
+    /**
+     * 接单
+     *
+     * @param ordersConfirmDTO
+     */
+    @Override
+    public void confirmOrder(OrdersConfirmDTO ordersConfirmDTO) {
+        Orders orders = new Orders();
+        BeanUtils.copyProperties(ordersConfirmDTO, orders);
+        orderMapper.update(orders);
+    }
+
+    /**
+     * 拒单
+     *
+     * @param ordersRejectionDTO
+     */
+    @Override
+    public void rejectionOrder(OrdersRejectionDTO ordersRejectionDTO) {
+        Orders orders = new Orders();
+        BeanUtils.copyProperties(ordersRejectionDTO, orders);
+        // 要修改订单的状态为已取消。
+        orders.setStatus(Orders.CANCELLED);
+        // 设置拒单时间（取消时间）
+        orders.setCancelTime(LocalDateTime.now());
+        orderMapper.update(orders);
+    }
+
+    /**
+     * 取消订单
+     *
+     * @param ordersCancelDTO
+     */
+    @Override
+    public void cancelOrder(OrdersCancelDTO ordersCancelDTO) {
+        Orders orders = new Orders();
+        BeanUtils.copyProperties(ordersCancelDTO, orders);
+        // 要修改订单的状态为已取消。
+        orders.setStatus(Orders.CANCELLED);
+        // 设置拒单时间（取消时间）
+        orders.setCancelTime(LocalDateTime.now());
+        orderMapper.update(orders);
+    }
+
+    /**
+     * 派送订单
+     *
+     * @param id
+     */
+    @Override
+    public void deliveryOrder(Long id) {
+        Orders orders = new Orders();
+        orders.setId(id);
+        // 要修改订单的状态为已取消。
+        orders.setStatus(Orders.DELIVERY_IN_PROGRESS);
+        orderMapper.update(orders);
+    }
+
+    /**
+     * 完成订单
+     *
+     * @param id
+     */
+    @Override
+    public void completeOrder(Long id) {
+        Orders orders = new Orders();
+        orders.setId(id);
+        // 要修改订单的状态为已完成。
+        orders.setStatus(Orders.COMPLETED);
+        // 更新送达时间
+        orders.setDeliveryTime(LocalDateTime.now());
         orderMapper.update(orders);
     }
 }
