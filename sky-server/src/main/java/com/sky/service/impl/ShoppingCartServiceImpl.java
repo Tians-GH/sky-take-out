@@ -3,6 +3,7 @@ package com.sky.service.impl;
 import com.sky.context.BaseContext;
 import com.sky.dto.ShoppingCartDTO;
 import com.sky.entity.Dish;
+import com.sky.entity.OrderDetail;
 import com.sky.entity.ShoppingCart;
 import com.sky.mapper.*;
 import com.sky.service.ShoppingCartService;
@@ -82,6 +83,25 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         }
 
     }
+
+    /**
+     * 增加上一个订单的商品到购物车
+     *
+     * @param
+     */
+    @Override
+    public void addToShoppingCart(OrderDetail orderDetail) {
+        ShoppingCart shoppingCart = new ShoppingCart();
+        BeanUtils.copyProperties(orderDetail, shoppingCart);
+
+        // 填充公共字段
+        shoppingCart.setUserId(BaseContext.getCurrentId());
+        shoppingCart.setCreateTime(LocalDateTime.now());
+        // 插入数据
+        shoppingCartMapper.insert(shoppingCart);
+        //
+    }
+
 
     /**
      * 查看购物车

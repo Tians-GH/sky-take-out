@@ -1,12 +1,11 @@
 package com.sky.service;
 
 import com.sky.dto.*;
+import com.sky.result.PageResult;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVOO;
-
-import java.util.List;
 
 public interface OrderService {
     /**
@@ -38,7 +37,7 @@ public interface OrderService {
      * @param ordersPageQueryDTO
      * @return
      */
-    List<OrderVOO> queryOrder(OrdersPageQueryDTO ordersPageQueryDTO);
+    PageResult queryOrder(OrdersPageQueryDTO ordersPageQueryDTO);
 
     /**
      * 订单搜索
@@ -46,7 +45,7 @@ public interface OrderService {
      * @param ordersPageQueryDTO
      * @return
      */
-    List<OrderVOO> conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO);
+    PageResult conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO);
 
     /**
      * 各个状态的订单数量统计
@@ -97,4 +96,19 @@ public interface OrderService {
      * @param id
      */
     void completeOrder(Long id);
+
+    /**
+     * 查询订单详情
+     *
+     * @param id
+     */
+    OrderVOO orderDetail(Long id);
+
+    /**
+     * 再来一单
+     *
+     * @param id
+     */
+    void repetitionOrder(Long id);
+
 }

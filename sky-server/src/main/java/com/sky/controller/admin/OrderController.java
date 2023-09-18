@@ -4,6 +4,7 @@ import com.sky.dto.OrdersCancelDTO;
 import com.sky.dto.OrdersConfirmDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersRejectionDTO;
+import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
 import com.sky.vo.OrderStatisticsVO;
@@ -13,8 +14,6 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * 管理端订单管理
@@ -36,9 +35,9 @@ public class OrderController {
      */
     @GetMapping("/conditionSearch")
     @ApiOperation("订单搜索")
-    public Result<List<OrderVOO>> conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
-        List<OrderVOO> list = orderService.conditionSearch(ordersPageQueryDTO);
-        return Result.success(list);
+    public Result<PageResult> conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
+        PageResult pageResult = orderService.conditionSearch(ordersPageQueryDTO);
+        return Result.success(pageResult);
     }
 
     /**

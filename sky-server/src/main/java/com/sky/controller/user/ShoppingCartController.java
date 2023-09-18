@@ -24,7 +24,7 @@ public class ShoppingCartController {
     ShoppingCartService shoppingCartService;
 
     /**
-     * 小程序登录
+     * 增加购物车商品
      *
      * @param shoppingCartDTO
      * @return

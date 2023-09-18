@@ -1,16 +1,16 @@
 package com.sky.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.*;
 import com.sky.entity.*;
 import com.sky.exception.AddressBookBusinessException;
-import com.sky.exception.OrderBusinessException;
 import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.*;
+import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
@@ -138,9 +138,8 @@ public class OrderServiceImpl implements OrderService {
         //
         // return orderPaymentVO;
         // 当前登录用户id
-        Long userId = BaseContext.getCurrentId();
-        User user = userMapper.getById(userId);
-
+        // Long userId = BaseContext.getCurrentId();
+        // User user = userMapper.getById(userId);
         // // 调用微信支付接口，生成预支付交易单
         // JSONObject jsonObject = WeChatPayUtil.pay(
         //         ordersPaymentDTO.getOrderNumber(), // 商户订单号
@@ -148,19 +147,18 @@ public class OrderServiceImpl implements OrderService {
         //         "苍穹外卖订单", // 商品描述
         //         user.getOpenid() // 微信用户的openid
         // );
-
-        JSONObject jsonObject = new JSONObject();
-
-        if (jsonObject.getString("code") != null && jsonObject.getString("code").equals("ORDERPAID")) {
-            throw new OrderBusinessException("该订单已支付");
-        }
-
-        OrderPaymentVO vo = jsonObject.toJavaObject(OrderPaymentVO.class);
-        vo.setPackageStr(jsonObject.getString("package"));
+        //
+        // JSONObject jsonObject = new JSONObject();
+        //
+        // if (jsonObject.getString("code") != null && jsonObject.getString("code").equals("ORDERPAID")) {
+        //     throw new OrderBusinessException("该订单已支付");
+        // }
+        // OrderPaymentVO vo = jsonObject.toJavaObject(OrderPaymentVO.class);
+        // vo.setPackageStr(jsonObject.getString("package"));
 
         paySuccess(ordersPaymentDTO.getOrderNumber());
 
-        return vo;
+        return null;
 
     }
 
@@ -177,9 +175,9 @@ public class OrderServiceImpl implements OrderService {
         // 根据订单id更新订单的状态、支付方式、支付状态、结账时间
         Orders orders = Orders.builder()
                 .id(ordersDB.getId())
-                .status(Orders.TO_BE_CONFIRMED)
-                .payStatus(Orders.PAID)
-                .checkoutTime(LocalDateTime.now())
+                .status(Orders.TO_BE_CONFIRMED) // 订单状态
+                .payStatus(Orders.PAID) // 订单支付状态
+                .checkoutTime(LocalDateTime.now()) // 支付时间
                 .build();
         orderMapper.update(orders);
 
@@ -188,10 +186,9 @@ public class OrderServiceImpl implements OrderService {
         map.put("orderId", ordersDB.getId());
         map.put("content", "订单号" + outTradeNo);
         String jsonString = JSON.toJSONString(map);
+        // 广播支付完成信号到前后端
         webSocketServer.sendToAllClient(jsonString);
         //
-
-
     }
 
     /**
@@ -201,36 +198,27 @@ public class OrderServiceImpl implements OrderService {
      * @return
      */
     @Override
-    public List<OrderVOO> queryOrder(OrdersPageQueryDTO ordersPageQueryDTO) {
+    public PageResult queryOrder(OrdersPageQueryDTO ordersPageQueryDTO) {
         OrderVOO orderVOO = new OrderVOO();
         List<OrderVOO> vooList = new ArrayList<>();
 
         // 先设置分页条件
         PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
-        Orders orders = Orders.builder()
-                .userId(BaseContext.getCurrentId())
-                .build();
+        ordersPageQueryDTO.setUserId(BaseContext.getCurrentId());
 
         // 查询出订单的记录
-        List<Orders> ordersList = orderMapper.queryOrder(orders);
+        Page<Orders> page = orderMapper.queryOrder(ordersPageQueryDTO);
+
+        long total = page.getTotal();
+        List<Orders> ordersList = page.getResult();
 
         // 将ordersList的值复制到vooList
         for (Orders orders1 : ordersList) {
-
             BeanUtils.copyProperties(orders1, orderVOO);
             vooList.add(orderVOO);
             // 因为list里储存的是orderVOO的地址，使用每次复制了都要用一个新的地址，不然就是在同一个地址上不停赋值，
             orderVOO = new OrderVOO();
         }
-
-        // vooList.addAll(ordersList.stream()
-        //         .map(order -> {
-        //             OrderVOO orderVO = new OrderVOO();
-        //             BeanUtils.copyProperties(order, orderVO);
-        //             return orderVO;
-        //         })
-        //         .collect(Collectors.toList()));
-
 
         // 通过订单id查出对呀订单的商品
         for (OrderVOO voo : vooList) {
@@ -239,7 +227,7 @@ public class OrderServiceImpl implements OrderService {
             log.info("voo:{}", voo);
         }
 
-        return vooList;
+        return new PageResult(total, vooList);
     }
 
     /**
@@ -249,18 +237,17 @@ public class OrderServiceImpl implements OrderService {
      * @return
      */
     @Override
-    public List<OrderVOO> conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
+    public PageResult conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
         OrderVOO orderVOO = new OrderVOO();
         List<OrderVOO> vooList = new ArrayList<>();
         // 先设置分页条件
         PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
 
-        // Orders orders = new Orders();
-        // BeanUtils.copyProperties(ordersPageQueryDTO, orders);
-        // orders.setUserId(BaseContext.getCurrentId());
-
         // 查询出订单的记录
-        List<Orders> ordersList = orderMapper.queryconditionSearch(ordersPageQueryDTO);
+        Page<Orders> page = orderMapper.queryOrder(ordersPageQueryDTO);
+
+        long total = page.getTotal();
+        List<Orders> ordersList = page.getResult();
 
         // 将ordersList的值复制到vooList
         for (Orders orders1 : ordersList) {
@@ -270,7 +257,7 @@ public class OrderServiceImpl implements OrderService {
             orderVOO = new OrderVOO();
         }
 
-        return vooList;
+        return new PageResult(total, vooList);
     }
 
     /**
@@ -329,6 +316,7 @@ public class OrderServiceImpl implements OrderService {
     public void confirmOrder(OrdersConfirmDTO ordersConfirmDTO) {
         Orders orders = new Orders();
         BeanUtils.copyProperties(ordersConfirmDTO, orders);
+        orders.setStatus(Orders.CONFIRMED);
         orderMapper.update(orders);
     }
 
@@ -392,5 +380,32 @@ public class OrderServiceImpl implements OrderService {
         // 更新送达时间
         orders.setDeliveryTime(LocalDateTime.now());
         orderMapper.update(orders);
+    }
+
+    /**
+     * 查询订单详情
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public OrderVOO orderDetail(Long id) {
+        Orders orders = orderMapper.selectByOrderId(id);
+        // 菜品
+        List<OrderDetail> orderDetailList = orderDetailMapper.selectById(orders.getId());
+        OrderVOO orderVOO = new OrderVOO();
+        BeanUtils.copyProperties(orders, orderVOO);
+        orderVOO.setOrderDetailList(orderDetailList);
+        return orderVOO;
+    }
+
+    /**
+     * 再来一单
+     *
+     * @param id
+     */
+    @Override
+    public void repetitionOrder(Long id) {
+
     }
 }
