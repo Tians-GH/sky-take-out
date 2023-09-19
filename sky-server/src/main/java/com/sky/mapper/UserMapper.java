@@ -51,5 +51,5 @@ public interface UserMapper {
      * @return
      */
     @Select("select count(*) from user where create_time >= #{beginTime} and create_time <= #{endTime}")
-    Double countUsers(LocalDateTime beginTime, LocalDateTime endTime);
+    Integer countUsers(LocalDateTime beginTime, LocalDateTime endTime);
 }

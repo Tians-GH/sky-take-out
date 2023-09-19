@@ -98,4 +98,12 @@ public interface SetmealMapper {
      */
     List<Setmeal> selectListByCategoryIdWithStatus(Long categoryId);
 
+    /**
+     * 查询套餐启停售
+     *
+     * @param status
+     * @return
+     */
+    @Select("select count(*) from setmeal where status = #{status}")
+    Integer countSetmeal(Integer status);
 }

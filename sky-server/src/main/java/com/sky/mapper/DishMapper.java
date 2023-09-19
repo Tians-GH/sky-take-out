@@ -97,4 +97,13 @@ public interface DishMapper {
      * @return
      */
     List<Dish> selectListWithFlavorByCategoryId(Long categoryId);
+
+    /**
+     * 查询菜品停起售
+     *
+     * @param status
+     * @return
+     */
+    @Select("select count(*) from dish where status = #{status}")
+    Integer countDish(Integer status);
 }

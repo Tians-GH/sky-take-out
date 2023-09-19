@@ -77,7 +77,7 @@ public class ReportServiceImpl implements ReportService {
      */
     @Override
     public UserReportVO userStatistics(LocalDate begin, LocalDate end) {
-        Double number = 0.0;
+        Integer number = 0;
         // 日期列表
         List<LocalDate> dateList = new ArrayList<>();
         dateList.add(begin);
@@ -86,16 +86,16 @@ public class ReportServiceImpl implements ReportService {
             dateList.add(begin);
         }
         // 总用户列表
-        List<Double> totalUser = new ArrayList<>();
+        List<Integer> totalUser = new ArrayList<>();
         // 新增用户列表
-        List<Double> newUser = new ArrayList<>();
+        List<Integer> newUser = new ArrayList<>();
 
         for (LocalDate date : dateList) {
             // 取出每天的起止时间
             LocalDateTime beginTime = LocalDateTime.of(date, LocalTime.MIN);
             LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
             // 每日新增
-            Double userCount = userMapper.countUsers(beginTime, endTime);
+            Integer userCount = userMapper.countUsers(beginTime, endTime);
             newUser.add(userCount);
             // 截止到今天的总人数
             userCount += number;
