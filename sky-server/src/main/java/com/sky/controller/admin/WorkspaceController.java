@@ -1,7 +1,7 @@
 package com.sky.controller.admin;
 
 import com.sky.result.Result;
-import com.sky.service.OrderService;
+import com.sky.service.WorkspaceService;
 import com.sky.vo.BusinessDataVO;
 import com.sky.vo.DishOverViewVO;
 import com.sky.vo.OrderOverViewVO;
@@ -27,7 +27,7 @@ import java.time.LocalTime;
 public class WorkspaceController {
 
     @Autowired
-    OrderService orderService;
+    WorkspaceService workspaceService;
 
     /**
      * 查询今日运营数据
@@ -40,7 +40,7 @@ public class WorkspaceController {
     public Result<BusinessDataVO> businessData() {
         LocalDateTime begin = LocalDateTime.now().with(LocalTime.MIN);
         LocalDateTime end = LocalDateTime.now().with(LocalTime.MAX);
-        BusinessDataVO businessDataVO = orderService.businessData(begin, end);
+        BusinessDataVO businessDataVO = workspaceService.businessData(begin, end);
         return Result.success(businessDataVO);
     }
 
@@ -53,7 +53,7 @@ public class WorkspaceController {
     @ApiOperation("查询订单管理数据")
     @GetMapping("/overviewOrders")
     public Result<OrderOverViewVO> overviewOrders() {
-        OrderOverViewVO orderOverViewVO = orderService.overviewOrders();
+        OrderOverViewVO orderOverViewVO = workspaceService.overviewOrders();
         return Result.success(orderOverViewVO);
     }
 
@@ -66,7 +66,7 @@ public class WorkspaceController {
     @ApiOperation("查询菜品总览")
     @GetMapping("/overviewDishes")
     public Result<DishOverViewVO> overviewDishes() {
-        DishOverViewVO dishOverViewVO = orderService.overviewDishes();
+        DishOverViewVO dishOverViewVO = workspaceService.overviewDishes();
         return Result.success(dishOverViewVO);
     }
 
@@ -79,7 +79,7 @@ public class WorkspaceController {
     @ApiOperation("查询套餐总览")
     @GetMapping("/overviewSetmeals")
     public Result<SetmealOverViewVO> overviewSetmeals() {
-        SetmealOverViewVO setmealOverViewVO = orderService.overviewSetmeals();
+        SetmealOverViewVO setmealOverViewVO = workspaceService.overviewSetmeals();
         return Result.success(setmealOverViewVO);
     }
 

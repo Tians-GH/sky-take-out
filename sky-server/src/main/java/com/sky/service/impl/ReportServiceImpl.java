@@ -6,15 +6,19 @@ import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ReportMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
-import com.sky.vo.OrderReportVO;
-import com.sky.vo.SalesTop10ReportVO;
-import com.sky.vo.TurnoverReportVO;
-import com.sky.vo.UserReportVO;
+import com.sky.service.WorkspaceService;
+import com.sky.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -33,6 +37,8 @@ public class ReportServiceImpl implements ReportService {
     UserMapper userMapper;
     @Autowired
     OrderMapper orderMapper;
+    @Autowired
+    WorkspaceService workspaceService;
 
 
     @Override
@@ -180,5 +186,70 @@ public class ReportServiceImpl implements ReportService {
         String numberList = StringUtils.join(goodsSalesDTOList.stream().map(GoodsSalesDTO::getNumber).collect(
                 Collectors.toList()), ',');
         return new SalesTop10ReportVO(nameList, numberList);
+    }
+
+    /**
+     * 导出Excel报表
+     *
+     * @param response
+     */
+    @Override
+    public void export(HttpServletResponse response) throws IOException {
+        // 加载设置好的Excel模板
+        InputStream inputStream = this.getClass().getClassLoader()
+                .getResourceAsStream("template/运营数据报表模板.xlsx");
+        // 概括数据（最近30天）
+        LocalDate begin = LocalDate.now().minusDays(30);    // 获取今天-30
+        LocalDate end = LocalDate.now();
+        BusinessDataVO businessDataVO = workspaceService.businessData(
+                LocalDateTime.of(begin, LocalTime.MIN), LocalDateTime.of(end, LocalTime.MAX));
+        // 基于模板创建新的表格
+        XSSFWorkbook excel = new XSSFWorkbook(inputStream);
+        // 获取sheet1
+        XSSFSheet sheet1 = excel.getSheet("sheet1");
+        // 填充数据吧
+        sheet1.getRow(1).getCell(1).setCellValue(begin + "至" + end);
+        // 营业额
+        sheet1.getRow(3).getCell(2).setCellValue(businessDataVO.getTurnover());
+        // 订单完成率
+        sheet1.getRow(3).getCell(4).setCellValue(businessDataVO.getOrderCompletionRate());
+        // 新增用户数
+        sheet1.getRow(3).getCell(6).setCellValue(businessDataVO.getNewUsers());
+        // 有效订单
+        sheet1.getRow(4).getCell(2).setCellValue(businessDataVO.getValidOrderCount());
+        // 平均客单价
+        sheet1.getRow(4).getCell(4).setCellValue(businessDataVO.getUnitPrice());
+        // 详细数据（30天的每一天）
+        int row = 7;
+        while (!begin.equals(end)) {
+            BusinessDataVO businessDataVO1 = workspaceService
+                    .businessData(LocalDateTime.of(begin, LocalTime.MIN), LocalDateTime.of(begin, LocalTime.MAX));
+            // 日期
+            sheet1.getRow(row).getCell(1).setCellValue(String.valueOf(begin));
+            // 营业额
+            sheet1.getRow(row).getCell(2).setCellValue(businessDataVO1.getTurnover());
+            // 有效订单
+            sheet1.getRow(row).getCell(3).setCellValue(businessDataVO1.getValidOrderCount());
+            // 订单完成率
+            sheet1.getRow(row).getCell(4).setCellValue(businessDataVO1.getOrderCompletionRate());
+            // 平均客单价
+            sheet1.getRow(row).getCell(5).setCellValue(businessDataVO1.getUnitPrice());
+            // 新增用户数
+            sheet1.getRow(row).getCell(6).setCellValue(businessDataVO1.getNewUsers());
+            begin = begin.plusDays(1);
+            row++;
+            //
+        }
+        // 通过输出流将文件下载到客户端浏览器
+        // 获取输出流
+        ServletOutputStream outputStream = response.getOutputStream();
+        // 写入输出流
+        excel.write(outputStream);
+        // 写入文件要刷新
+        outputStream.flush();
+        // 关闭资源
+        outputStream.close();
+        excel.close();
+        //
     }
 }

@@ -13,7 +13,10 @@ import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.*;
 import com.sky.result.PageResult;
 import com.sky.service.OrderService;
-import com.sky.vo.*;
+import com.sky.vo.OrderPaymentVO;
+import com.sky.vo.OrderStatisticsVO;
+import com.sky.vo.OrderSubmitVO;
+import com.sky.vo.OrderVOO;
 import com.sky.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -49,10 +52,6 @@ public class OrderServiceImpl implements OrderService {
     ReportMapper reportMapper;
     @Autowired
     SetmealMapper setmealMapper;
-    // 菜品起售
-    public static final Integer STATUS_ENABLE = 1;
-    // 菜品停售
-    public static final Integer STATUS_DISABLE = 0;
 
     /**
      * 下单
@@ -438,94 +437,4 @@ public class OrderServiceImpl implements OrderService {
         //
     }
 
-    /**
-     * 查询今日运营数据
-     *
-     * @param begin
-     * @param end
-     * @return
-     */
-    @Override
-    public BusinessDataVO businessData(LocalDateTime begin, LocalDateTime end) {
-        // 当日订单完成率：已完成订单数/订单总数*100%
-        // 当日营业额：已完成订单
-        // 当日有效订单数：已完成订单数
-        // 当日平均客单价：营业额/已完成订单数
-        // 当日新增用户数: 今天时间注册的用户数
-
-        //
-        //
-        // 当日有效订单数
-        Integer finishOrder;
-        // 当日营业额 平均客单价 订单完成率
-        Double turnover, orderRate, average;
-        Map map = new HashMap<>();
-        map.put("begin", begin);
-        map.put("end", end);
-        Integer orderOver = orderMapper.countOrder(map);
-        Integer userNumber = userMapper.countUsers(begin, end);
-        if (orderOver == 0) {
-            finishOrder = 0;
-            turnover = 0.0;
-            average = 0.0;
-            orderRate = 0.0;
-            return new BusinessDataVO(turnover, finishOrder, orderRate, average, userNumber);
-        }
-        map.put("status", Orders.COMPLETED);
-        finishOrder = orderMapper.countOrder(map);
-        orderRate = (double) finishOrder / orderOver;
-        turnover = reportMapper.sumByMap(map);
-        average = turnover / finishOrder;
-        return new BusinessDataVO(turnover, finishOrder, orderRate, average, userNumber);
-    }
-
-    /**
-     * 查询订单管理数据
-     *
-     * @return
-     */
-    @Override
-    public OrderOverViewVO overviewOrders() {
-        Map map = new HashMap<>();
-        // 待接单数量
-        map.put("status", Orders.TO_BE_CONFIRMED);
-        Integer waitingOrders = orderMapper.countOrder(map);
-        // 待派送数量
-        map.put("status", Orders.CONFIRMED);
-        Integer deliveredOrders = orderMapper.countOrder(map);
-        // 已完成数量
-        map.put("status", Orders.COMPLETED);
-        Integer completedOrders = orderMapper.countOrder(map);
-        // 已取消数量
-        map.put("status", Orders.CANCELLED);
-        Integer cancelledOrders = orderMapper.countOrder(map);
-        // 全部订单
-        map.clear();
-        Integer allOrders = orderMapper.countOrder(map);
-        return new OrderOverViewVO(waitingOrders, deliveredOrders, completedOrders, cancelledOrders, allOrders);
-    }
-
-    /**
-     * 查询菜品总览
-     *
-     * @return
-     */
-    @Override
-    public DishOverViewVO overviewDishes() {
-        Integer enable = dishMapper.countDish(STATUS_ENABLE);
-        Integer disable = dishMapper.countDish(STATUS_DISABLE);
-        return new DishOverViewVO(enable, disable);
-    }
-
-    /**
-     * 查询套餐总览
-     *
-     * @return
-     */
-    @Override
-    public SetmealOverViewVO overviewSetmeals() {
-        Integer enable = setmealMapper.countSetmeal(STATUS_ENABLE);
-        Integer disable = setmealMapper.countSetmeal(STATUS_DISABLE);
-        return new SetmealOverViewVO(enable, disable);
-    }
 }
