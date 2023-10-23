@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +51,33 @@ public class OrderServiceImpl implements OrderService {
     ReportMapper reportMapper;
     @Autowired
     SetmealMapper setmealMapper;
+
+    public void getOrderDishes(List<OrderVOO> ordersList) {
+        // 通过订单id查出对应订单的商品
+        for (OrderVOO voo : ordersList) {
+            // 菜品名称们
+            String orderDishes = "";
+            List<OrderDetail> orderDetails = orderDetailMapper.selectById(voo.getId());
+            voo.setOrderDetailList(orderDetails);
+            // 取菜名
+            for (OrderDetail orderDetail : orderDetails) {
+                // 判断是菜品还是套餐
+                Long dishId = orderDetail.getDishId();
+                Long setmealId = orderDetail.getSetmealId();
+                if (dishId != null) {
+                    Dish dish = dishMapper.selectById(dishId);
+                    orderDishes = orderDishes + dish.getName() + "*" + orderDetail.getNumber() + ";";
+                } else {
+                    List<SetmealDish> setmealDishes = setmealDishMapper.selectBySetmealId(setmealId);
+                    for (SetmealDish setmealDish : setmealDishes) {
+                        orderDishes += setmealDish.getName() + "*" + orderDetail.getNumber() + ";";
+                    }
+                }
+            }
+            voo.setOrderDishes(orderDishes);
+            log.info("voo:{}", voo);
+        }
+    }
 
     /**
      * 下单
@@ -204,35 +230,43 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public PageResult queryOrder(OrdersPageQueryDTO ordersPageQueryDTO) {
-        OrderVOO orderVOO = new OrderVOO();
-        List<OrderVOO> vooList = new ArrayList<>();
-
         // 先设置分页条件
         PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
         ordersPageQueryDTO.setUserId(BaseContext.getCurrentId());
 
         // 查询出订单的记录
-        Page<Orders> page = orderMapper.queryOrder(ordersPageQueryDTO);
+        Page<OrderVOO> page = orderMapper.queryOrder(ordersPageQueryDTO);
 
         long total = page.getTotal();
-        List<Orders> ordersList = page.getResult();
+        List<OrderVOO> ordersList = page.getResult();
 
-        // 将ordersList的值复制到vooList
-        for (Orders orders1 : ordersList) {
-            BeanUtils.copyProperties(orders1, orderVOO);
-            vooList.add(orderVOO);
-            // 因为list里储存的是orderVOO的地址，使用每次复制了都要用一个新的地址，不然就是在同一个地址上不停赋值，
-            orderVOO = new OrderVOO();
-        }
+        // // 菜品名称们
+        // String orderDishes = "";
+        // // 通过订单id查出对应订单的商品
+        // for (OrderVOO voo : ordersList) {
+        //     List<OrderDetail> orderDetails = orderDetailMapper.selectById(voo.getId());
+        //     voo.setOrderDetailList(orderDetails);
+        //     // 取菜名
+        //     for (OrderDetail orderDetail : orderDetails) {
+        //         // 判断是菜品还是套餐
+        //         Long dishId = orderDetail.getDishId();
+        //         Long setmealId = orderDetail.getSetmealId();
+        //         if (dishId != null) {
+        //             Dish dish = dishMapper.selectById(dishId);
+        //             orderDishes = orderDishes + dish.getName() + "*" + orderDetail.getNumber() + ";";
+        //         } else {
+        //             List<SetmealDish> setmealDishes = setmealDishMapper.selectBySetmealId(setmealId);
+        //             for (SetmealDish setmealDish : setmealDishes) {
+        //                 orderDishes += setmealDish.getName() + "*" + orderDetail.getNumber() + ";";
+        //             }
+        //         }
+        //     }
+        //     voo.setOrderDishes(orderDishes);
+        //     log.info("voo:{}", voo);
+        // }
+        getOrderDishes(ordersList);
 
-        // 通过订单id查出对呀订单的商品
-        for (OrderVOO voo : vooList) {
-            List<OrderDetail> orderDetails = orderDetailMapper.selectById(voo.getId());
-            voo.setOrderDetailList(orderDetails);
-            log.info("voo:{}", voo);
-        }
-
-        return new PageResult(total, vooList);
+        return new PageResult(total, ordersList);
     }
 
     /**
@@ -243,26 +277,17 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public PageResult conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
-        OrderVOO orderVOO = new OrderVOO();
-        List<OrderVOO> vooList = new ArrayList<>();
+
         // 先设置分页条件
         PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
 
         // 查询出订单的记录
-        Page<Orders> page = orderMapper.queryOrder(ordersPageQueryDTO);
+        Page<OrderVOO> page = orderMapper.queryOrder(ordersPageQueryDTO);
 
         long total = page.getTotal();
-        List<Orders> ordersList = page.getResult();
-
-        // 将ordersList的值复制到vooList
-        for (Orders orders1 : ordersList) {
-            BeanUtils.copyProperties(orders1, orderVOO);
-            vooList.add(orderVOO);
-            // 因为list里储存的是orderVOO的地址，使用每次复制了都要用一个新的地址，不然就是在同一个地址上不停赋值，
-            orderVOO = new OrderVOO();
-        }
-
-        return new PageResult(total, vooList);
+        List<OrderVOO> ordersList = page.getResult();
+        getOrderDishes(ordersList);
+        return new PageResult(total, ordersList);
     }
 
     /**

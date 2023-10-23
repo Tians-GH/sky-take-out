@@ -43,7 +43,7 @@
         where id = #{id}
     </update>
     <!--    查询历史订单-->
-    <select id="queryOrder" resultType="com.sky.entity.Orders">
+    <select id="queryOrder" resultType="com.sky.vo.OrderVOO">
         select * from orders
         <where>
             <if test="beginTime != null">

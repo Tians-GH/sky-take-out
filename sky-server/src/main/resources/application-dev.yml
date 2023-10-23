@@ -26,6 +26,7 @@ sky:
     password: 123456
     #    数据库
     database: 10
+
   #配置微信登录所需配置项：
   wechat:
     appid: wx2ae6211a4ed178b9

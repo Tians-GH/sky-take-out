@@ -5,6 +5,7 @@ import com.github.pagehelper.Page;
 import com.sky.dto.GoodsSalesDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
+import com.sky.vo.OrderVOO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -50,7 +51,7 @@ public interface OrderMapper {
      * @param
      * @return
      */
-    Page<Orders> queryOrder(OrdersPageQueryDTO ordersPageQueryDTO);
+    Page<OrderVOO> queryOrder(OrdersPageQueryDTO ordersPageQueryDTO);
 
     /**
      * 订单搜索
